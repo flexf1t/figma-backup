@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import clui from "clui";
 import fs from "fs";
-import path from "path";
 import puppeteer, { Browser, Page } from "puppeteer";
 import { BACKUP_DIR, COOKIES_PATH, ROOT_DIR } from "./constants";
 import { AuthorizationError, BackupError } from "./errors";
@@ -13,7 +12,6 @@ import {
   parseLoginFormError,
   saveLocalCopy,
   submitLoginForm,
-  timer,
   waitAndNavigate,
   waitForRedirects
 } from "./utils";
@@ -171,7 +169,7 @@ export default class Bot {
     const page: Page = await this._browser.newPage();
     page.setDefaultNavigationTimeout(60 * 1000);
 
-    const spinner = new Spinner(`\t. Navigating to the file(${file.name})...`);
+    const spinner = new Spinner(`\t. ${projectName}. Navigating to the file(${file.name})...`);
 
     log(chalk.red(">") + chalk.bold(` Backing up the file(${file.name})...`));
 
@@ -183,22 +181,23 @@ export default class Bot {
 
     spinner.start();
     await page.waitForFunction(
-      () => !document.querySelector('[class*="progress_bar--outer"]')
+      () => !document.querySelector('[class*="progress_bar--outer"]'), {timeout: 30000}
     );
     spinner.stop();
 
-    log(chalk.red("\t.") + chalk.bold(` Setting the download behavior...`));
-
-    const client = await page.target().createCDPSession();
-    await client.send("Page.setDownloadBehavior", {
-      behavior: "allow",
-      downloadPath: path.join(
-        BACKUP_DIR,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        SESSION_DATA.date!.toISOString(),
-        projectName
-      )
-    });
+	// does not work for me:
+    // log(chalk.red("\t.") + chalk.bold(` Setting the download behavior...`));
+    // const client = await page.target().createCDPSession();
+    // const folderPath = path.join(
+    //   BACKUP_DIR,
+    //   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    //   SESSION_DATA.date!.toISOString(),
+    //   projectName
+    // )
+    // await client.send("Page.setDownloadBehavior", {
+    //   behavior: "allow",
+    //   downloadPath: folderPath
+    // });
 
     log(
       chalk.red("\t>") +
@@ -260,23 +259,19 @@ export default class Bot {
 
     SESSION_DATA.date = new Date();
 
-    const _timer = timer();
 
     if (!fs.existsSync(ROOT_DIR)) fs.mkdirSync(ROOT_DIR);
     if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
     if (fs.existsSync(COOKIES_PATH)) fs.rmSync(COOKIES_PATH);
 
     log(chalk.red.bold(" Starting the backup task..."));
-    _timer.start();
     try {
       await this._backupProjects();
       log(
-        chalk.red.bold(`Backup task finished! (time elapsed: ${_timer.end()}s)`)
+        chalk.red.bold(`Backup task finished!`)
       );
     } catch (err) {
       log(chalk.bold.red(`ERR. ${(<Error>err).message}`));
-    } finally {
-      await this.stop();
     }
   }
 

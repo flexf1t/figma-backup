@@ -31,7 +31,7 @@ const saveLocalCopy = async (
   await page.keyboard.up(MainKeyInput);
 
   try {
-    await page.waitForSelector("[class*='quick_actions--search']", {
+    await page.waitForSelector("[class^='quick_actions--search']", {
       timeout: interactionDelay
     });
   } catch {
@@ -45,7 +45,7 @@ const saveLocalCopy = async (
   await page.keyboard.type("save local copy", { delay: typingDelay });
 
   try {
-    await page.waitForSelector("[class*='quick_actions--result']", {
+    await page.waitForSelector("[class^='quick_actions--result']", {
       timeout: interactionDelay
     });
   } catch {
@@ -63,8 +63,8 @@ const saveLocalCopy = async (
   try {
     spinner.start();
     await page.waitForNetworkIdle({
-      timeout: downloadTimeout,
-      idleTime: 5000 + interactionDelay
+        timeout: downloadTimeout,
+        idleTime: 10000 + interactionDelay
     });
     spinner.stop();
     log(
@@ -84,7 +84,7 @@ const saveLocalCopy = async (
     );
   } finally {
     await wait(2 * interactionDelay);
-    await page.close();
+    setTimeout( () => { void page.close() }, 60000);
   }
 };
 
