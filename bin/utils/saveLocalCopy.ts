@@ -31,7 +31,7 @@ const saveLocalCopy = async (
   await page.keyboard.up(MainKeyInput);
 
   try {
-    await page.waitForSelector("[class^='quick_actions--search']", {
+    await page.waitForSelector("[class^='search--searchInput']", {
       timeout: interactionDelay
     });
   } catch {
@@ -45,7 +45,7 @@ const saveLocalCopy = async (
   await page.keyboard.type("save local copy", { delay: typingDelay });
 
   try {
-    await page.waitForSelector("[class^='quick_actions--result']", {
+    await page.waitForSelector("[data-testid^='save-as']", {
       timeout: interactionDelay
     });
   } catch {

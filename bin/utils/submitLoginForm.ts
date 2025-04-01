@@ -16,14 +16,14 @@ const submitLoginForm = async (
 
   // Focus the email field
   await wait(interactionDelay);
-  await page.click('form#auth-view-page > input[name="email"]');
+  await page.click('form#auth-view-page input[name="email"]');
 
   // Fill the email field
   await wait(interactionDelay);
   await page.keyboard.type(authData.email, { delay: typingDelay });
 
   // Focus the password field
-  await page.click('form#auth-view-page > input[name="password"]');
+  await page.click('form#auth-view-page input[name="password"]');
 
   // Fill the password field
   await page.keyboard.type(authData.password, { delay: typingDelay });
